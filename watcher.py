@@ -154,6 +154,7 @@ def check_target(t):
         try:
             res = extract_price(fetch(url), rx)
             if res:
+                res["page"] = url
                 if i:
                     res["source"] += " (fallback)"
                 return res, None
@@ -236,6 +237,7 @@ def run_once(dry_run=False):
     cfg = load_json(CONFIG_PATH, {})
     defaults = cfg.get("defaults", {})
     state = load_json(STATE_PATH, {})
+    alerted_pages = set()   # one alert per price page per run (fallbacks share a page)
     for t in cfg.get("targets", []):
         url = str(t.get("url", ""))
         name = t.get("name", url)
@@ -257,8 +259,13 @@ def run_once(dry_run=False):
         print("OK   %s: £%.2f via %s%s" % (
             name, res["price"], res["source"],
             " [OUT OF STOCK]" if res["in_stock"] is False else ""))
-        if msg and not notify(msg, url, dry_run):
-            st["last_alert"] = None                   # retry next time
+        if msg and res["page"] in alerted_pages:
+            print("     (alert suppressed: %s already alerted this run)" % res["page"])
+        elif msg:
+            if notify(msg, res["page"], dry_run):
+                alerted_pages.add(res["page"])
+            else:
+                st["last_alert"] = None               # retry next time
     if not dry_run:
         save_state(state)
 

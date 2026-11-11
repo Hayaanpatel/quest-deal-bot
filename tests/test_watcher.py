@@ -102,5 +102,14 @@ class Flow(unittest.TestCase):
         for _ in range(5): self.run_("<html>captcha</html>")
         self.assertEqual(len(self.sent), 2)  # rearmed after a success
 
+class Dedupe(Flow):
+    def test_fallback_alerts_once(self):
+        t = [{"name": n, "url": "http://x/" + n, "fallback_url": "http://ps/p"} for n in "abc"]
+        with open(watcher.CONFIG_PATH, "w") as f:
+            json.dump({"defaults": {"target_price": 299}, "targets": t}, f)
+        watcher.fetch = lambda url, timeout=25: ld("250") if "ps" in url else (_ for _ in ()).throw(OSError("blocked"))
+        watcher.run_once(); self.assertEqual(len(self.sent), 1)
+        watcher.run_once(); self.assertEqual(len(self.sent), 1)
+
 if __name__ == "__main__":
     unittest.main()
