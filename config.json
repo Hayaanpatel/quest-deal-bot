@@ -1,0 +1,21 @@
+{
+  "defaults": { "target_price": 299, "drop_percent": 10 },
+  "targets": [
+    {
+      "name": "John Lewis",
+      "url": "https://www.johnlewis.com/meta-quest-3s-all-in-one-mixed-reality-headset-and-controllers-256gb-white/p112686461"
+    },
+    {
+      "name": "Argos",
+      "url": "https://www.argos.co.uk/product/4099718"
+    },
+    {
+      "name": "Currys",
+      "url": "https://www.currys.co.uk/products/meta-meta-quest-3s-virtual-reality-headset-and-controllers-256-gb-10270714.html"
+    },
+    {
+      "name": "Amazon UK",
+      "url": "https://www.amazon.co.uk/dp/B09MJSXLQ1"
+    }
+  ]
+}

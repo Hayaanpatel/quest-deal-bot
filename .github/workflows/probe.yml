@@ -1,0 +1,24 @@
+name: probe
+on: workflow_dispatch
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: probe
+        run: |
+          UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+          for u in \
+            "https://www.johnlewis.com/meta-quest-3s-all-in-one-mixed-reality-headset-and-controllers-256gb-white/p112686461" \
+            "https://www.argos.co.uk/product/4099718" \
+            "https://www.currys.co.uk/products/meta-meta-quest-3s-virtual-reality-headset-and-controllers-256-gb-10270714.html" \
+            "https://www.amazon.co.uk/dp/B09MJSXLQ1" \
+            "https://www.meta.com/en-gb/quest/quest-3s/" \
+            "https://www.meta.com/en-gb/quest/quest-3s/buy/" \
+            "https://ao.com/search?search=meta+quest+3s" \
+            "https://www.very.co.uk/e/q/meta%20quest%203s.end" \
+            "https://pricespy.co.uk/product.php?p=13883509" ; do
+            curl -sS -L -m 30 -A "$UA" -H 'Accept-Language: en-GB,en;q=0.9' -o /tmp/p.html -w "%{http_code} %{size_download}B %{url_effective}\n" "$u" || echo "CURL FAIL $u"
+            echo "  jsonld=$(grep -c 'ld+json' /tmp/p.html) ogprice=$(grep -c 'og:price' /tmp/p.html) captcha=$(grep -ci 'captcha\|access denied\|robot' /tmp/p.html)"
+            echo "  title: $(grep -o '<title>[^<]*' /tmp/p.html | head -1)"
+            case "$u" in *ao.com*|*very.co.uk*|*meta.com*) grep -o 'href="[^"]*[Qq]uest-3s[^"]*"' /tmp/p.html | sort -u | head -8;; esac
+          done
